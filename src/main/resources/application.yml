@@ -22,8 +22,8 @@ springdoc:
   packagesToScan: com.example.marketplace.api.v1.controllers
 
 aws:
-  accessKeyId: owh7nr
-  secretKey: c1j9xl
+  accessKeyId: 
+  secretKey: 
   region: sa-east-1
   endpoint: http://localhost:8000
   #accessKeyId: ${AWS_ACCESS_KEY_ID}
