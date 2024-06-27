@@ -1,0 +1,67 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    image: marketplace:1.0
+    container_name: marketplace
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_APPLICATION_JSON: '{"logging":{"level":{"root":"DEBUG"}}}'
+      AWS_ACCESS_KEY_ID: ''
+      AWS_SECRET_KEY: ''
+      AWS_REGION: 'sa-east-1'
+      AWS_ENDPOINT: 'http://localhost:8000'
+
+  postgres:
+    image: 'postgres:alpine'
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    hostname: keycloak
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: keycloak
+      POSTGRES_HOST: postgres
+
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    ports:
+      - "8443:8443"
+      - "9000:9000"
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_HTTP_RELATIVE_PATH: /auth
+    command:
+      - start-dev
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - "80:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: teste@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
+volumes:
+  postgres-volume:

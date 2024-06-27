@@ -1,0 +1,32 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: marketplace
+
+  jackson:
+    default-property-inclusion: NON_NULL
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://host.docker.internal:8080/auth/realms/marketplace
+          jwk-set-uri: http://host.docker.internal:8080/auth/realms/marketplace/protocol/openid-connect/certs
+          #issuer-uri: http://keycloak:8080/auth/realms/marketplace
+          #jwk-set-uri: http://keycloak:8080/auth/realms/marketplace/protocol/openid-connect/certs
+
+springdoc:
+  api-docs.path: /api-docs
+  packagesToScan: com.example.marketplace.api.v1.controllers
+
+aws:
+  accessKeyId: owh7nr
+  secretKey: c1j9xl
+  region: sa-east-1
+  endpoint: http://localhost:8000
+  #accessKeyId: ${AWS_ACCESS_KEY_ID}
+  #secretKey: ${AWS_SECRET_KEY}
+  #region: ${AWS_REGION}
+  #endpoint: ${AWS_ENDPOINT}
