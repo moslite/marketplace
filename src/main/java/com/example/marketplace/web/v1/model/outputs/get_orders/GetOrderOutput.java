@@ -1,4 +1,4 @@
-package com.example.marketplace.web.v1.models.outputs.get_orders;
+package com.example.marketplace.web.v1.model.outputs.get_orders;
 
 import lombok.*;
 

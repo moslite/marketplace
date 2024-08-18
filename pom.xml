@@ -35,6 +35,7 @@
         <org.springframework.security.version>6.3.1</org.springframework.security.version>
         <com.amazonaws.version>1.12.749</com.amazonaws.version>
         <org.springframework.data.version>3.3.1</org.springframework.data.version>
+        <net.logstash.logback.version>7.4</net.logstash.logback.version>
     </properties>
 
     <dependencies>
@@ -97,6 +98,13 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
             <version>${org.springframework.data.version}</version>
+        </dependency>
+
+        <!-- Logstash -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${net.logstash.logback.version}</version>
         </dependency>
 
     </dependencies>

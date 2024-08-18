@@ -1,15 +1,19 @@
-version: '3.8'
 services:
   app:
     build: .
     image: marketplace:1.0
     container_name: marketplace
+    restart: always
     ports:
       - "8090:8090"
+    labels:
+      filebeat_enabled: "true"
+      decode_log_to_json: "true"
+    volumes:
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
     environment:
-      SPRING_APPLICATION_JSON: '{"logging":{"level":{"root":"DEBUG"}}}'
-      AWS_ACCESS_KEY_ID: ''
-      AWS_SECRET_KEY: ''
+      AWS_ACCESS_KEY_ID: 'owh7nr'
+      AWS_SECRET_KEY: 'c1j9xl'
       AWS_REGION: 'sa-east-1'
       AWS_ENDPOINT: 'http://localhost:8000'
 
@@ -19,6 +23,8 @@ services:
       - postgres-volume:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    labels:
+      filebeat_enabled: "true"
     hostname: keycloak
     environment:
       POSTGRES_USER: keycloak
@@ -28,6 +34,9 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak
+    container_name: keycloak-local
+    labels:
+      filebeat_enabled: "true"
     ports:
       - "8443:8443"
       - "9000:9000"
@@ -57,11 +66,68 @@ services:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
     container_name: dynamodb-local
+    labels:
+      filebeat_enabled: "true"
     ports:
       - "8000:8000"
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
 
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.14.2
+    container_name: filebeat
+    entrypoint: "filebeat -e -strict.perms=false"
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - filebeat_data:/usr/share/filebeat/data:rw
+    user: root
+    restart: on-failure
+    depends_on:
+      - logstash
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.14.2
+    container_name: logstash
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "25826:25826"
+      - "5044:5044"
+    restart: on-failure
+    environment:
+      - xpack.monitoring.elasticsearch.username=marketplace
+      - xpack.monitoring.elasticsearch.password=123456
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.2
+    container_name: elasticsearch
+    restart: always
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: true
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.2
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    depends_on:
+      - elasticsearch
+
 volumes:
   postgres-volume:
+  filebeat_data:
+  elasticsearch-data:
+    driver: local

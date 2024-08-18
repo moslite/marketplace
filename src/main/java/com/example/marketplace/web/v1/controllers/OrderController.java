@@ -1,9 +1,9 @@
 package com.example.marketplace.web.v1.controllers;
 
-import com.example.marketplace.web.v1.models.outputs.get_orders.GetOrderOutput;
+import com.example.marketplace.web.v1.model.outputs.get_orders.GetOrderOutput;
 import com.example.marketplace.domain.entity.Order;
 import com.example.marketplace.domain.usecase.GetOrderUseCase;
-import com.example.marketplace.web.v1.mappers.OrderMapper;
+import com.example.marketplace.web.v1.mapper.OrderMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
